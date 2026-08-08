@@ -1,0 +1,39 @@
+// Prisma schema for persisting dashboards server-side (PostgreSQL).
+// The shipped app persists dashboards to localStorage by default (see src/lib/store/persistence.ts)
+// so it works without any infrastructure. Wire DATABASE_URL + run `prisma migrate dev` and swap the
+// persistence layer for src/lib/db.ts (see src/app/api/dashboards) to move saves server-side.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Dashboard {
+  id                String   @id @default(cuid())
+  name              String
+  datasetFileName   String
+  tabs              Json
+  filters           Json
+  calculatedFields  Json
+  ownerId           String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([ownerId])
+}
+
+model Dataset {
+  id          String   @id @default(cuid())
+  fileName    String
+  fileType    String
+  fileSize    Int
+  sheetsMeta  Json
+  ownerId     String?
+  createdAt   DateTime @default(now())
+
+  @@index([ownerId])
+}
